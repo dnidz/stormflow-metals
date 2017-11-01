@@ -7,6 +7,9 @@ library(tidyverse)
 library(lubridate)
 library(stringr)
 library(scales)
+library(knitr)
+library(kableExtra)
+options(knitr.table.format = "latex")
 # library(pcaMethods)
 
 
@@ -190,8 +193,6 @@ pct.over.streams<-criteria %>%
   filter(Acute.over+Chronic.over+Water.over>0)
 
 
-
-
 # Heatmap
 source("Heatmap plotting function.R")
 
@@ -320,5 +321,36 @@ criteria %>%
   filter(Parameter=="Mercury, Total") %>%
   arrange(-RValue) %>%
   View()
+
+
+## Make printable tables
+table.pct.over.aquatox<-pct.over %>%
+  select(Parameter,Acute.over,Acute.pct,Chronic.over,Chronic.pct) %>%
+  filter(Acute.over+Chronic.over>0) %>%
+  kable(booktabs=T,
+        digits=c(0,0,1,0,1),
+        col.names=c("Parameter","n","percent","n","percent"),
+        caption="Samples above aquatic-life criteria"
+  ) %>%
+  kable_styling() %>%
+  add_header_above(c(" "=1,"Acute"=2,"Chronic"=2))
+
+table.pct.over.human<-pct.over %>%
+  select(Parameter,Water.over,Water.pct) %>%
+  filter(Water.over>0) %>%
+  kable(booktabs=T,
+        digits=c(0,0,1),
+        col.names=c("Parameter","n","percent"),
+        caption="Samples above human-health criteria"
+  ) %>%
+  kable_styling() 
+
+
+# Outputs
+# for now I'm stuck copy-pasting them to a tex file
+table.pct.over.aquatox
+table.pct.over.human
+
+
 
 
