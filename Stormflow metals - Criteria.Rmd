@@ -1,21 +1,26 @@
-## Wet weather streams - Criteria
-# Daniel Nidzgorski
-# July 7, 2017
+---
+title: "Stormflow metals - Criteria"
+author: "Daniel Nidzgorski"
+date: "November 1, 2017"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
 
-# Libraries
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(lubridate)
 library(stringr)
 library(scales)
 library(knitr)
 library(kableExtra)
-options(knitr.table.format = "latex")
-# library(pcaMethods)
+options(knitr.table.format = "html")
+```
 
 
-# Clear desktop & variables
-rm (list=ls())
-
+```{r Main script}
 wwmetals<-read_csv("Metals wet weather - MDL replaced.csv",
                    col_types=cols(
                      .default = col_character(),
@@ -149,13 +154,13 @@ over.aquatox<-criteria %>%
   filter(propAcute>1 | propChronic>1,
          !BelowMDL) %>%
   arrange(Parameter,Date,Stream)
-write_csv(over.aquatox,"Metals over aquatox.csv")
+# write_csv(over.aquatox,"Metals over aquatox.csv")
 
 over.human<-criteria %>%
   filter(propWater>1,
          !BelowMDL) %>%
   arrange(Parameter,Date,Stream)
-write_csv(over.human,"Metals over human-health.csv")
+# write_csv(over.human,"Metals over human-health.csv")
 
 # What percent of samples are over the criteria? 
 # For <MDL samples, only include them in the count if the MDL is below the criterion.
@@ -205,7 +210,7 @@ crit.hm<-criteria.means %>%
   select(X=Stream,Y=Parameter,Value=MeanProp) %>%
   plot.heatmap(method="none")
 
-ggsave(crit.hm,filename="Heatmap by chronic criteria.png",width=10,height=6)
+# ggsave(crit.hm,filename="Heatmap by chronic criteria.png",width=10,height=6)
 
 
 ## Data over time
@@ -323,6 +328,11 @@ params.human<-unique(over.human$Parameter)
 #   View()
 
 
+```
+
+What percent of samples are above the criteria?
+
+```{r Table outputs}
 ## Make printable tables
 table.pct.over.aquatox<-pct.over %>%
   select(Parameter,Acute.over,Acute.pct,Chronic.over,Chronic.pct) %>%
@@ -334,7 +344,7 @@ table.pct.over.aquatox<-pct.over %>%
   ) %>%
   kable_styling() %>%
   add_header_above(c(" "=1,"Acute"=2,"Chronic"=2)) 
-kable_as_image(table.pct.over.aquatox,"Table - Criteria - aquatox")
+# kable_as_image(table.pct.over.aquatox,"Table - Criteria - aquatox")
 
 table.pct.over.human<-pct.over %>%
   select(Parameter,Water.over,Water.pct) %>%
@@ -345,14 +355,10 @@ table.pct.over.human<-pct.over %>%
         caption="Samples above human-health criteria"
   ) %>%
   kable_styling() 
-kable_as_image(table.pct.over.human,"Table - Criteria - human")
+# kable_as_image(table.pct.over.human,"Table - Criteria - human")
 
-
-
-# Outputs
-# for now I'm stuck copy-pasting them to a tex file
-# table.pct.over.aquatox
-# table.pct.over.human
-
+table.pct.over.aquatox
+table.pct.over.human
+```
 
 
