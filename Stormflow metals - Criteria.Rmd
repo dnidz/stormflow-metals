@@ -16,7 +16,8 @@ library(stringr)
 library(scales)
 library(knitr)
 library(kableExtra)
-options(knitr.table.format = "html")
+options(knitr.table.format = "html",knitr.kable.NA = '')
+options(scipen=999)
 ```
 
 
@@ -330,9 +331,50 @@ params.human<-unique(over.human$Parameter)
 
 ```
 
+What are the criteria values we used?
+```{r Tables - Criteria}
+# Fixed-value criteria
+fixed.criteria<-criteria %>%
+  filter(!Parameter %in% hardness.dependent.params,
+         !is.na(Acute) | !is.na(Chronic) | !is.na(Water)) %>%
+  select(Parameter,Acute,Chronic,Water) %>%
+  unique() %>% 
+  arrange(Parameter) 
+
+# fixed.criteria[ ,2:4]<-signif(fixed.criteria[ ,2:4],digits=2)
+# fixed.criteria[2,2:4]<-formatC(fixed.criteria[2,2:4],format="f",digits=1)
+
+table.fixed.criteria<-fixed.criteria %>%
+  kable(booktabs=T,
+        digits=3,
+        col.names=c("Parameter","Acute","Chronic","Human-health"),
+        caption="Fixed-value criteria"
+  ) %>%
+  kable_styling() 
+  
+
+# Hardness-dependent parameters
+table.hardness.criteria<-criteria.values %>%
+  select(Parameter,
+         minAcute,medianAcute,maxAcute,
+         minChronic,medianChronic,maxChronic) %>%
+  kable(booktabs=T,
+        digits=c(0,2,2,2,2,2,2),
+        col.names=c("Parameter","min","median","max","min","median","max"),
+        caption="Critera values for hardness-dependent criteria"
+  ) %>%
+  kable_styling() %>%
+  add_header_above(c(" "=1,"Acute"=3,"Chronic"=3))
+
+table.fixed.criteria
+table.hardness.criteria
+
+```
+
+
 What percent of samples are above the criteria?
 
-```{r Table outputs}
+```{r Tables - above criteria}
 ## Make printable tables
 table.pct.over.aquatox<-pct.over %>%
   select(Parameter,Acute.over,Acute.pct,Chronic.over,Chronic.pct) %>%
